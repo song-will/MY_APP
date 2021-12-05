@@ -13,6 +13,8 @@ target 'my_app' do
   )
 
 
+  pod 'RNSensors', :path => '../node_modules/react-native-sensors'
+
   target 'my_appTests' do
     inherit! :complete
     # Pods for testing

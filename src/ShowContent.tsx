@@ -1,9 +1,18 @@
 import React, { useEffect, useState } from 'react';
 import { View, StyleSheet, Text, TouchableWithoutFeedback } from 'react-native'
 import { Props } from './types'
+import { gyroscope, setUpdateIntervalForType, SensorTypes } from "react-native-sensors";
+import { thesaurus } from './pageIndex'
 
+setUpdateIntervalForType(SensorTypes.gyroscope, 300);
 interface Card {
     label: string
+}
+
+interface Gyroscope {
+    x: number
+    y: number
+    z: number
 }
 
 const CardItem: React.FC<Card> = ({label}) => {
@@ -15,43 +24,46 @@ const CardItem: React.FC<Card> = ({label}) => {
         </View>
     )
 }
-const cards: Card[] = [
-    {
-        label: '洛洛历险记'
-    },
-    {
-        label: '哪吒'
-    },
-    {
-        label: '豆腐'
-    },
-    {
-        label: '万万没想到'
-    }
-]
 
 interface Card {
     label:string
 }
 
-const ShowContent: React.FC<Props> = ({navigation}) => {
+const ShowContent = (props) => {
+    const id = props.navigation.getState().routes[1].params.id
+    const cards = thesaurus.find(item => id === item.id).value || []
+    const [rotate, setRotate] = useState<Gyroscope>({
+        x: 0,
+        y: 0,
+        z: 0
+    })
     const [card, setCard] = useState(cards[0])
     const [index, setIndex] = useState(0)
     const len = cards.length
-    const handleTouch = (): void => {
-        if (index < len) {
-            setCard({
-                label: cards[index].label
-            })
-            setIndex(index + 1)
-        }else {
-            setIndex(0)
-        }
+    const handleChangeIndex = (): void => {
+        let tempIndex = index < len - 1 ? index + 1 : 0
+        setIndex(tempIndex)
     }
+    useEffect(() => {
+        setCard(cards[index])
+    }, [index])
+    useEffect(() => {
+        const subscription = gyroscope.subscribe(({x, y, z}) => {
+            if (y <  -.7) {
+                setRotate({ x, y, z })
+            }
+        })
+        return () => {
+            subscription.unsubscribe()
+        }
+    }, [])
+    useEffect(() => {
+        handleChangeIndex()
+    }, [rotate])
     return (
-        <TouchableWithoutFeedback onPress={() => handleTouch()}>
+        <TouchableWithoutFeedback>
             <View style={styles.root}>
-                <CardItem label={card.label} />
+                <CardItem label={card} />
             </View>
         </TouchableWithoutFeedback>
     )

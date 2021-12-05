@@ -24,6 +24,8 @@ import {
 import { NavigationAction, NavigationContainer } from '@react-navigation/native'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import ShowContent from './src/ShowContent'
+import ChooseContent from './src/ChooseContent'
+import Gyroscope from './src/Gyroscope'
 
 interface Navigation {
   navigate: (name: string) => void
@@ -34,10 +36,11 @@ interface Props {
 }
 
 const HomeScreen: React.FC<Props> = (props) => {
+  console.log('home', props)
   return (
-    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center'}}>
-        <Text>Home Screen</Text>
-        <Button title="start" onPress={() => props.navigation.navigate('ShowContent')} />
+    <View style={{ flex: 1}}>
+        <ChooseContent navigation={props.navigation} />
+        {/* <Button title="start" onPress={() => props.navigation.navigate('ShowContent')} /> */}
     </View>
   )
 }
@@ -49,8 +52,10 @@ const App = () => {
   return (
     <NavigationContainer>
       <Stack.Navigator>
-          <Stack.Screen name="Home" component={HomeScreen} options={{title: 'home'}} />
+          <Stack.Screen name="Home" component={HomeScreen} options={{title: '你说我菜'}} />
           <Stack.Screen name="ShowContent" component={ShowContent} />
+          <Stack.Screen name="ChooseContent" component={ChooseContent} />
+          <Stack.Screen name="Gyroscope" component={Gyroscope} />
       </Stack.Navigator>
     </NavigationContainer>
   );
