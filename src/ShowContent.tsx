@@ -4,7 +4,7 @@ import { Props } from './types'
 import { gyroscope, setUpdateIntervalForType, SensorTypes } from "react-native-sensors";
 import { thesaurus } from './pageIndex'
 
-setUpdateIntervalForType(SensorTypes.gyroscope, 300);
+setUpdateIntervalForType(SensorTypes.gyroscope, 250);
 interface Card {
     label: string
 }
@@ -37,19 +37,17 @@ const ShowContent = (props) => {
         y: 0,
         z: 0
     })
-    const [card, setCard] = useState(cards[0])
     const [index, setIndex] = useState(0)
+    const [card, setCard] = useState(cards[index])
     const len = cards.length
     const handleChangeIndex = (): void => {
-        let tempIndex = index < len - 1 ? index + 1 : 0
+        let tempIndex = index < len - 1 ? index + 1 : len - 1
         setIndex(tempIndex)
+        setCard(cards[tempIndex])
     }
     useEffect(() => {
-        setCard(cards[index])
-    }, [index])
-    useEffect(() => {
         const subscription = gyroscope.subscribe(({x, y, z}) => {
-            if (y <  -.7) {
+            if (y < -.7) {
                 setRotate({ x, y, z })
             }
         })
@@ -57,12 +55,17 @@ const ShowContent = (props) => {
             subscription.unsubscribe()
         }
     }, [])
-    useEffect(() => {
-        handleChangeIndex()
-    }, [rotate])
+    const useDidUpdateEffect = (fn, inputs) => {
+        const [didMount, setDidMount] = useState(false)
+        useEffect(() => {
+            didMount ? fn() : setDidMount(true)
+        }, inputs)
+    }
+    useDidUpdateEffect(handleChangeIndex, [rotate])
     return (
         <TouchableWithoutFeedback>
             <View style={styles.root}>
+                <Text>{`${index + 1}/${len}`}</Text>
                 <CardItem label={card} />
             </View>
         </TouchableWithoutFeedback>
